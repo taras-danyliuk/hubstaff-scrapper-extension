@@ -1,39 +1,104 @@
 const DAY_MILISECONDS = 86400000;
 
-const target = 120;
-const targetB = 140;
-const targetBB = 160;
+const hours = [
+    {
+        target: 126,
+        targetB: 146,
+        targetBB: 166,
+    }, {
+        target: 126,
+        targetB: 146,
+        targetBB: 166,
+    }, {
+        target: 114,
+        targetB: 133,
+        targetBB: 152,
+    }, {
+        target: 132,
+        targetB: 154,
+        targetBB: 176,
+    }, {
+        target: 120,
+        targetB: 140,
+        targetBB: 160,
+    }, {
+        target: 132,
+        targetB: 154,
+        targetBB: 176,
+    }, {
+        target: 132,
+        targetB: 154,
+        targetBB: 176,
+    }, {
+        target: 120,
+        targetB: 140,
+        targetBB: 160,
+    }, {
+        target: 138,
+        targetB: 161,
+        targetBB: 184,
+    }, {
+        target: 126,
+        targetB: 147,
+        targetBB: 168,
+    }, {
+        target: 126,
+        targetB: 147,
+        targetBB: 168,
+    }, {
+        target: 126,
+        targetB: 147,
+        targetBB: 168,
+    }
+]
 
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        const now = new Date();
-        const finish = getFinalDate();
+document.addEventListener('DOMContentLoaded', function () {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status !== 200) {
+            document.getElementById("title").innerHTML = "Server not started";
+        }
+        if (this.readyState == 4 && this.status == 200) {
+            // Typical action to be performed when the document is ready:
+            const response = JSON.parse(xhttp.responseText);
+            const keys = Object.keys(response);
 
-        const days = workingDaysBetweenDates(now, finish);
+            document.getElementById("title").innerHTML = keys[0];
+            document.getElementById("result").innerHTML = response[keys[0]];
 
-        const current = "130:21:15";
-        const currentArray = current.split(":");
-        const currentS = (+currentArray[0] * 3600) + (+currentArray[1] * 60) + +currentArray[2];
+            if (keys[0] !== 'hours') return;
 
-        const targetS = target * 3600;
-        const targetBS = targetB * 3600;
-        const targetBBS = targetBB * 3600;
+            const now = new Date();
+            const finish = getFinalDate();
+            const monthIndex = finish.getMonth();
 
-        const avarageTargetS = Math.ceil((targetS - currentS) / days);
-        const avarageTargetBS = Math.ceil((targetBS - currentS) / days);
-        const avarageTargetBBS = Math.ceil((targetBBS - currentS) / days);
+            const days = workingDaysBetweenDates(now, finish);
 
-        const avarageTarget = secToDate(avarageTargetS);
-        const avarageTargetB = secToDate(avarageTargetBS);
-        const avarageTargetBB = secToDate(avarageTargetBBS);
+            const current = response[keys[0]];
+            const currentArray = current.split(":");
+            const currentS = (+currentArray[0] * 3600) + (+currentArray[1] * 60) + +currentArray[2];
 
-        document.getElementById('title').innerHTML = "hours";
-        document.getElementById('result').innerHTML = current;
+            const { target, targetB, targetBB } = hours[monthIndex];
 
-        document.getElementById('normal').innerHTML = avarageTarget;
-        document.getElementById('bonus').innerHTML = avarageTargetB;
-        document.getElementById('bonus2').innerHTML = avarageTargetBB;
-    }, 1000);
+            const targetS = target * 3600;
+            const targetBS = targetB * 3600;
+            const targetBBS = targetBB * 3600;
+
+            const avarageTargetS = Math.ceil((targetS - currentS) / days);
+            const avarageTargetBS = Math.ceil((targetBS - currentS) / days);
+            const avarageTargetBBS = Math.ceil((targetBBS - currentS) / days);
+
+            const avarageTarget = secToDate(avarageTargetS);
+            const avarageTargetB = secToDate(avarageTargetBS);
+            const avarageTargetBB = secToDate(avarageTargetBBS);
+
+            document.getElementById('normal').innerHTML = avarageTarget;
+            document.getElementById('bonus').innerHTML = avarageTargetB;
+            document.getElementById('bonus2').innerHTML = avarageTargetBB;
+        }
+    };
+    xhttp.open("GET", "http://localhost:12345/api/time", true);
+    xhttp.send();
 }, false);
 
 function getFinalDate() {
@@ -41,7 +106,7 @@ function getFinalDate() {
     const finish = new Date();
     finish.setDate(26);
 
-    if(now.getDate() > 26) finish.setMonth(now.getMonth() + 1);
+    if (now.getDate() > 26) finish.setMonth(now.getMonth() + 1);
 
     return finish;
 }
@@ -58,10 +123,10 @@ function workingDaysBetweenDates(start, end) {
         days--;
     }
 
-    for(; i < daysToIterate; i++) {
+    for (; i < daysToIterate; i++) {
         const day = new Date(startTime + (DAY_MILISECONDS * i)).getDay();
 
-        if(day === 6 || day === 7) days--;
+        if (day === 6 || day === 7) days--;
     }
 
     return days;
@@ -78,7 +143,7 @@ function secToDate(seconds) {
 }
 
 function insertZero(number) {
-    if(number.toString().length === 1) return `0${number}`;
+    if (number.toString().length === 1) return `0${number}`;
 
     return number;
 }
