@@ -1,3 +1,6 @@
+const email = "taras.danylyuk@coaxsoft.com";
+const password = "";
+
 const DAY_MILISECONDS = 86400000;
 
 const hours = [
@@ -82,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
       prepAndFill(response[keys[0]]);
     }
   };
-  xhttp.open("GET", "http://localhost:12345/api/time", true);
+  xhttp.open("GET", `https://hubstaff-scrapper.herokuapp.com/api/time?email=${email}&password=${password}`, true);
   xhttp.send();
 }, false);
 
