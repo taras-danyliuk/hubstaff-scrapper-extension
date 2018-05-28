@@ -57,10 +57,18 @@ const hours = [
 
 document.addEventListener("DOMContentLoaded", function () {
   const includeCheckbox = document.getElementById("include");
+  const dayOffInput = document.getElementById("dayOff");
 
   if (new Date().getHours() <= 16) includeCheckbox.checked = true;
+  chrome.storage.sync.get(["dayOffs"], function (result) {
+    if (result.dayOffs >= 0) dayOffInput.value = result.dayOffs;
+  });
 
   includeCheckbox.addEventListener("change", getMemoryHours);
+  dayOffInput.addEventListener("input", e => {
+    chrome.storage.sync.set({ dayOffs: e.target.value });
+    getMemoryHours();
+  });
 
   getMemoryHours();
 
@@ -100,7 +108,8 @@ function prepAndFill(value) {
   const finish = getFinalDate();
   const monthIndex = finish.getMonth();
 
-  const days = workingDaysBetweenDates(now, finish);
+  const dayOff = document.getElementById("dayOff").value;
+  const days = workingDaysBetweenDates(now, finish) - dayOff;
 
   const current = value;
   const currentArray = current.split(":");
@@ -141,6 +150,10 @@ function prepAndFill(value) {
     goal.innerHTML = `${targetBB}:00:00`;
     hoursTillGoal.innerHTML = secToDate(targetBBS - currentS);
   }
+  else {
+    goal.innerHTML = `${targetBB}:00:00`;
+    hoursTillGoal.innerHTML = secToDate(targetBBS - currentS, false);
+  }
 }
 
 function getFinalDate() {
@@ -168,14 +181,20 @@ function workingDaysBetweenDates(start, end) {
   for (; i < daysToIterate; i++) {
     const day = new Date(startTime + (DAY_MILISECONDS * i)).getDay();
 
-    if (day === 6 || day === 7) days--;
+    if (day === 6 || day === 0) days--;
   }
 
   return days;
 }
 
-function secToDate(seconds) {
-  if (seconds < 0) return "Done";
+function secToDate(seconds, onlyPositive = true) {
+  if (seconds < 0 && onlyPositive) return "Done";
+
+  let prefix = "";
+  if (seconds < 0) {
+    prefix = "-";
+    seconds = Math.abs(seconds);
+  }
 
   const fullHours = Math.floor(seconds / 3600);
   seconds = seconds - (fullHours * 3600);
@@ -183,7 +202,7 @@ function secToDate(seconds) {
   const fullMinutes = Math.floor(seconds / 60);
   seconds = seconds - (fullMinutes * 60);
 
-  return `${fullHours}:${insertZero(fullMinutes)}:${insertZero(seconds)}`
+  return `${prefix}${fullHours}:${insertZero(fullMinutes)}:${insertZero(seconds)}`
 }
 
 function insertZero(number) {

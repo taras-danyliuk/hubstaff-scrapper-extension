@@ -4,14 +4,16 @@
     <title>Hubstaff Time Left</title>
     <script src="popup.js"></script>
 </head>
-<body style="width: 200px; text-align: center">
+<body style="width: 300px; text-align: center">
 <h4 style="margin: 5px 0;">You have tracked:</h4>
 <div style="display: flex; justify-content: space-between">
     <span id="title">Getting data...</span>
     <span id="result">&nbsp;</span>
 </div>
 
+
 <h4 style="margin: 5px 0;">Your target per day:</h4>
+
 <div style="display: flex; justify-content: space-between">
     <span>Normal:</span>
     <span id="normal">&nbsp;</span>
@@ -25,15 +27,24 @@
     <span id="bonus2">&nbsp;</span>
 </div>
 
+
 <h5 style="margin: 5px 0;">Additional Stuff:</h5>
+
+<div style="display: flex; justify-content: space-between">
+  <div style="text-align: left; margin: 5px 0 10px;">
+    <input style="outline: none;" type="checkbox" id="include"/>
+    <label for="include">Include today</label>
+  </div>
+  
+  <div style="text-align: left; margin: 5px 0 10px;">
+    <input style="outline: none; width: 30px;" type="number" id="dayOff" min="0" max="30" value="0"/>
+    <label for="include"> - day offs this month</label>
+  </div>
+</div>
+
 <div style="display: flex; justify-content: space-between">
     <span>Days left:</span>
     <span id="days">&nbsp;</span>
-</div>
-
-<div style="text-align: left; margin: 5px 0 10px;">
-    <input style="outline: none;" type="checkbox" id="include"/>
-    <label for="include">Include today</label>
 </div>
 
 <div style="display: flex; justify-content: space-between">
