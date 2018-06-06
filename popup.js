@@ -109,7 +109,7 @@ function prepAndFill(value) {
   const monthIndex = finish.getMonth();
 
   const dayOff = document.getElementById("dayOff").value;
-  const days = workingDaysBetweenDates(now, finish) - dayOff;
+  const days = workingDaysBetweenDates(now, finish, false);
 
   const current = value;
   const currentArray = current.split(":");
@@ -117,9 +117,9 @@ function prepAndFill(value) {
 
   const { target, targetB, targetBB } = hours[monthIndex];
 
-  const targetS = target * 3600;
-  const targetBS = targetB * 3600;
-  const targetBBS = targetBB * 3600;
+  const targetS = (target - (dayOff * 6)) * 3600;
+  const targetBS = (targetB - (dayOff * 7)) * 3600;
+  const targetBBS = (targetBB - (dayOff * 8)) * 3600;
 
   const avarageTargetS = Math.ceil((targetS - currentS) / days);
   const avarageTargetBS = Math.ceil((targetBS - currentS) / days);
@@ -135,23 +135,29 @@ function prepAndFill(value) {
 
   document.getElementById("days").innerHTML = days;
 
+  const daysWithoutToday = workingDaysBetweenDates(now, finish, true);
+  const idealHoursS = daysWithoutToday * 7 * 3600;
+  const left = secToDate(targetBS - idealHoursS - currentS)
+
+  document.getElementById("left").innerHTML = left;
+  
   const goal = document.getElementById("goal");
   const hoursTillGoal = document.getElementById("hours");
 
   if (avarageTarget !== "Done") {
-    goal.innerHTML = `${target}:00:00`;
+    goal.innerHTML = `${target - (dayOff * 6)}:00:00`;
     hoursTillGoal.innerHTML = secToDate(targetS - currentS);
   }
   else if (avarageTargetB !== "Done") {
-    goal.innerHTML = `${targetB}:00:00`;
+    goal.innerHTML = `${targetB - (dayOff * 6)}:00:00`;
     hoursTillGoal.innerHTML = secToDate(targetBS - currentS);
   }
   else if (avarageTargetBB !== "Done") {
-    goal.innerHTML = `${targetBB}:00:00`;
+    goal.innerHTML = `${targetBB - (dayOff * 6)}:00:00`;
     hoursTillGoal.innerHTML = secToDate(targetBBS - currentS);
   }
   else {
-    goal.innerHTML = `${targetBB}:00:00`;
+    goal.innerHTML = `${targetBB - (dayOff * 6)}:00:00`;
     hoursTillGoal.innerHTML = secToDate(targetBBS - currentS, false);
   }
 }
@@ -166,14 +172,14 @@ function getFinalDate() {
   return finish;
 }
 
-function workingDaysBetweenDates(start, end) {
+function workingDaysBetweenDates(start, end, forceSkipToday) {
   const startTime = start.getTime();
 
   const daysToIterate = Math.floor((end.getTime() - startTime) / DAY_MILISECONDS) + 1;
   let days = daysToIterate;
   let i = 0;
 
-  if (!document.getElementById("include").checked) {
+  if (!document.getElementById("include").checked || forceSkipToday) {
     i = 1;
     days--;
   }
